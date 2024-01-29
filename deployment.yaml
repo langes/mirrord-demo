@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mirrord-demo
+  labels:
+    app: mirrord-demo
+spec:
+  containers:
+  - name: mirrord-demo
+    image: mirrord-demo:latest
+    imagePullPolicy: IfNotPresent
+    env:
+    - name: MYSECRET
+      value: "SuperDuperSecret"
+    ports:
+      - containerPort: 8000
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mirrord-demo
+spec:
+  selector:
+    app: mirrord-demo
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mirrord-demo
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: mirrord-demo
+                port:
+                  number: 8000
+---
+
